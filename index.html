@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>暗哨斗地主联网版</title>
+    <style>
+        body { background: #1a1a1a; color: white; text-align: center; font-family: sans-serif; margin: 0; }
+        .room-info { padding: 20px; background: #333; margin-bottom: 20px; }
+        .hand { display: flex; justify-content: center; margin-top: 50px; }
+        .card {
+            width: 50px; height: 80px; background: white; color: black;
+            border-radius: 5px; margin-left: -35px; border: 1px solid #000;
+            line-height: 80px; font-size: 20px; font-weight: bold;
+            transition: 0.2s; cursor: pointer;
+        }
+        .card:hover { transform: translateY(-20px); }
+        #status { color: #ff4400; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="room-info">
+        <h2>五人暗哨局</h2>
+        <div id="status">正在连接服务器...</div>
+    </div>
+    
+    <div id="game-area">
+        <p>你的手牌：</p>
+        <div class="hand" id="player-hand"></div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        // 这里的逻辑就像是拨号上网
+        const socket = io(); // 这行代码尝试联系服务器
+
+        socket.on('connect', () => {
+            document.getElementById('status').innerText = "已联网，等待队友...";
+        });
+
+        // 模拟生成21张牌
+        const hand = document.getElementById('player-hand');
+        for(let i=0; i<21; i++) {
+            const c = document.createElement('div');
+            c.className = 'card';
+            c.innerText = i + 1;
+            hand.appendChild(c);
+        }
+    </script>
+</body>
+</html>
