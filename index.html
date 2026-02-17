@@ -32,7 +32,7 @@
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script>
         // 这里的逻辑就像是拨号上网
-        const socket = io(); // 这行代码尝试联系服务器
+        const socket = io(my-doudizhu.zeabur.app); // 这行代码尝试联系服务器
 
         socket.on('connect', () => {
             document.getElementById('status').innerText = "已联网，等待队友...";
