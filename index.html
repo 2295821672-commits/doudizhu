@@ -3,116 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>欢乐五人暗哨-终极版</title>
+    <title>欢乐五人暗哨局-终极交付版</title>
     <style>
+        /* 欢乐斗地主经典视觉 */
         body { background: radial-gradient(circle, #2e7d32 0%, #1b5e20 100%); color: white; margin: 0; font-family: sans-serif; overflow: hidden; }
-        .status-bar { background: rgba(0,0,0,0.4); padding: 10px; font-size: 14px; display: flex; justify-content: space-between; }
+        .status-bar { background: rgba(0,0,0,0.5); padding: 10px; font-size: 14px; display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); }
         
-        /* 桌面中心出牌区 */
-        #table-center { 
-            position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%);
-            width: 80%; height: 150px; display: flex; justify-content: center; align-items: center;
-            border: 2px dashed rgba(255,255,255,0.2); border-radius: 20px;
-        }
+        /* 桌面布局 */
+        #table-center { position: absolute; top: 38%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 160px; display: flex; justify-content: center; align-items: center; border: 2px dashed rgba(255,255,255,0.15); border-radius: 20px; z-index: 1; }
+        #timer-box { position: absolute; top: 22%; left: 50%; transform: translateX(-50%); background: #ffeb3b; border: 3px solid #5d4037; border-radius: 50%; width: 42px; height: 42px; line-height: 42px; text-align: center; color: #5d4037; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.5); z-index: 10; }
 
-        /* 闹钟计时器 */
-        #timer-box { position: absolute; top: 22%; left: 50%; transform: translateX(-50%); background: #ffeb3b; border: 3px solid #5d4037; border-radius: 50%; width: 45px; height: 45px; line-height: 45px; text-align: center; color: #5d4037; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.5); }
+        /* 电脑玩家 */
+        .robot { position: absolute; background: rgba(0,0,0,0.6); padding: 6px 12px; border-radius: 12px; font-size: 12px; color: #eee; border: 1px solid rgba(255,255,255,0.2); }
+        .r1 { top: 50%; left: 2%; } .r2 { top: 12%; left: 15%; } .r3 { top: 12%; right: 15%; } .r4 { top: 50%; right: 2%; }
 
-        /* 电脑玩家标签 */
-        .robot-label { position: absolute; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 10px; font-size: 12px; }
-        .r1 { top: 50%; left: 2%; } .r2 { top: 15%; left: 15%; } .r3 { top: 15%; right: 15%; } .r4 { top: 50%; right: 2%; }
+        /* 操作按钮 */
+        .controls { position: fixed; bottom: 175px; width: 100%; text-align: center; z-index: 100; }
+        .btn { padding: 10px 32px; border-radius: 25px; border: 2px solid #fff; font-weight: bold; font-size: 18px; margin: 0 10px; cursor: pointer; box-shadow: 0 4px 0 rgba(0,0,0,0.2); transition: 0.1s; }
+        .btn-pass { background: linear-gradient(to bottom, #757575, #424242); color: white; }
+        .btn-play { background: linear-gradient(to bottom, #ffeb3b, #fbc02d); color: #5d4037; }
+        .btn:active { transform: translateY(2px); box-shadow: none; }
 
-        /* 按钮与手牌 */
-        .controls { position: fixed; bottom: 170px; width: 100%; text-align: center; z-index: 100; }
-        .btn { padding: 10px 30px; border-radius: 25px; border: 2px solid #fff; font-weight: bold; margin: 0 10px; cursor: pointer; }
-        .btn-play { background: #fbc02d; color: #5d4037; } .btn-pass { background: #616161; color: white; }
-
-        .hand-area { display: flex; justify-content: center; position: fixed; bottom: 20px; width: 100%; height: 120px; }
-        .card { width: 60px; height: 90px; background: white; border-radius: 8px; color: black; margin-left: -45px; border: 1px solid #999; box-shadow: -2px 2px 5px rgba(0,0,0,0.3); padding: 5px; cursor: pointer; transition: 0.1s; }
-        .card.selected { transform: translateY(-25px); border: 2px solid #ff9800; }
-        .rank { font-size: 20px; font-weight: bold; }
+        /* 直线紧凑手牌 */
+        .hand-area { display: flex; justify-content: center; position: fixed; bottom: 20px; width: 100%; height: 130px; z-index: 50; }
+        .card { width: 66px; height: 96px; background: white; border-radius: 8px; color: black; margin-left: -48px; border: 1px solid #999; position: relative; transition: 0.2s; box-shadow: -2px 2px 6px rgba(0,0,0,0.4); padding: 5px; cursor: pointer; }
+        .card:first-child { margin-left: 0; }
+        .card.selected { transform: translateY(-30px); border: 2px solid #ff9800; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        .rank { font-size: 24px; font-weight: bold; }
         
-        /* 出到桌面上的牌 */
-        .played-card { width: 50px; height: 75px; background: #eee; border-radius: 5px; color: black; margin: 0 5px; border: 1px solid #ccc; text-align: center; line-height: 75px; font-weight: bold; }
+        /* 桌面出牌样式 */
+        .played-card { width: 55px; height: 80px; background: #fff; border-radius: 6px; color: black; margin: 0 3px; border: 1px solid #ddd; text-align: center; line-height: 80px; font-weight: bold; font-size: 20px; box-shadow: 1px 1px 3px rgba(0,0,0,0.3); }
     </style>
 </head>
 <body>
     <div class="status-bar">
-        <span id="status">欢乐五人局 (单机模式)</span>
-        <span>规则：暗哨 | 禁三带三 | 不翻倍</span>
+        <span id="status-text">正在加载...</span>
+        <button onclick="toggleMode()" style="background:#0277bd;color:white;border:none;padding:3px 10px;border-radius:10px;">切换联网</button>
     </div>
 
-    <div class="robot-label r1" id="robot1-txt">🤖 电脑1 (21张)</div>
-    <div class="robot-label r2" id="robot2-txt">🤖 电脑2 (21张)</div>
-    <div class="robot-label r3" id="robot3-txt">🤖 电脑3 (21张)</div>
-    <div class="robot-label r4" id="robot4-txt">🤖 电脑4 (21张)</div>
+    <div class="robot r1" id="robot1-txt">🤖 电脑1 (21)</div>
+    <div class="robot r2" id="robot2-txt">🤖 电脑2 (21)</div>
+    <div class="robot r3" id="robot3-txt">🤖 电脑3 (21)</div>
+    <div class="robot r4" id="robot4-txt">🤖 电脑4 (21)</div>
 
     <div id="table-center"></div>
     <div id="timer-box">120</div>
 
-    <div class="controls">
+    <div class="controls" id="control-layer">
         <button class="btn btn-pass" onclick="handlePass()">不出</button>
         <button class="btn btn-play" onclick="handlePlay()">出牌</button>
     </div>
 
     <div class="hand-area" id="player-hand"></div>
 
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script>
         let myHand = [];
-        let currentTableCards = []; // 桌面上的牌
+        let isOnline = false;
         let timeLeft = 120;
+        let lastPlay = { type: null, rank: 0, count: 0 };
+        let socket = null;
 
-        function startOfflineGame() {
-            let deck = [];
-            const ranks = [3,4,5,6,7,8,9,10,11,12,13,14,15,16,17];
-            for(let i=0; i<2; i++) ranks.forEach(r => {
-                if(r < 16) [1,2,3,4].forEach(s => deck.push({rank: r, suit: s}));
-                else deck.push({rank: r, suit: 0});
-            });
-            deck.sort(() => Math.random() - 0.5);
-            myHand = deck.slice(0, 21).sort((a,b) => b.rank - a.rank);
-            renderHand();
+        // --- 核心：牌型逻辑算法 ---
+        function getCardType(cards) {
+            cards.sort((a,b) => a.rank - b.rank);
+            const len = cards.length;
+            if (len === 1) return { type: 'SINGLE', rank: cards[0].rank, count: 1 };
+            if (len === 2 && cards[0].rank === cards[1].rank) return { type: 'PAIR', rank: cards[0].rank, count: 2 };
+            if (len === 4 && cards.every(c => c.rank === cards[0].rank)) return { type: 'BOMB', rank: cards[0].rank, count: 4 };
+            // 禁止三带三逻辑：如果长度为6且有三张一样的，直接返回null
+            return null; 
         }
 
-        function renderHand() {
-            const container = document.getElementById('player-hand');
-            container.innerHTML = '';
-            myHand.forEach((card, idx) => {
-                const div = document.createElement('div');
-                div.className = 'card' + (card.selected ? ' selected' : '');
-                div.innerHTML = `<span class="rank">${getRankName(card.rank)}</span>`;
-                div.onclick = () => { card.selected = !card.selected; renderHand(); };
-                container.appendChild(div);
-            });
-        }
-
-        function getRankName(r) {
-            const names = {11:'J', 12:'Q', 13:'K', 14:'A', 15:'2', 16:'小', 17:'大'};
-            return names[r] || r;
-        }
-
-        // --- 核心：AI 出牌循环 ---
+        // --- 核心：AI 出牌流程 ---
         async function runAILoop() {
-            document.querySelector('.controls').style.display = 'none'; // 轮到AI，隐藏你的按钮
+            document.getElementById('control-layer').style.visibility = 'hidden';
+            let passedCount = 0;
+
             for (let i = 1; i <= 4; i++) {
-                document.getElementById('status').innerText = `电脑 ${i} 正在思考...`;
-                await new Promise(r => setTimeout(r, 1200)); // 模拟思考1.2秒
+                document.getElementById('status-text').innerText = `电脑 ${i} 正在决策...`;
+                await new Promise(r => setTimeout(r, 1100));
                 
-                // 模拟AI出牌逻辑（简单展示）
-                const randomAction = Math.random() > 0.3 ? 'play' : 'pass';
-                if(randomAction === 'play') {
-                    showTableCards([{rank: Math.floor(Math.random()*13)+3}]); // 随机出一张
-                    document.getElementById(`robot${i}-txt`).innerText = `🤖 电脑${i} (出牌)`;
+                let play = null;
+                // 简单的AI模拟比大小逻辑
+                if (lastPlay.type === null || Math.random() > 0.7) {
+                    play = { type: lastPlay.type || 'SINGLE', rank: (lastPlay.rank || 2) + 1, count: lastPlay.count || 1 };
+                    if (play.rank > 15) play = null; // AI没有2以上的牌了
+                }
+
+                if (play) {
+                    const aiCards = Array(play.count).fill({rank: play.rank});
+                    renderTable(aiCards);
+                    lastPlay = { type: play.type, rank: play.rank, count: play.count };
+                    document.getElementById(`robot${i}-txt`).innerText = `🤖 电脑${i} (管上)`;
+                    passedCount = 0; // 重置过牌计数
+                    // 只要有人管上，就继续下一位AI或玩家
                 } else {
                     document.getElementById(`robot${i}-txt`).innerText = `🤖 电脑${i} (不要)`;
+                    passedCount++;
                 }
             }
-            document.getElementById('status').innerText = "轮到你了！";
-            document.querySelector('.controls').style.display = 'block';
+
+            if(passedCount >= 4) {
+                lastPlay = { type: null, rank: 0, count: 0 };
+                document.getElementById('status-text').innerText = "大家都不要，该你出牌！";
+            } else {
+                document.getElementById('status-text').innerText = "轮到你了";
+            }
+            
+            document.getElementById('control-layer').style.visibility = 'visible';
             timeLeft = 120;
         }
 
-        function showTableCards(cards) {
+        // --- 交互功能 ---
+        function handlePlay() {
+            const selected = myHand.filter(c => c.selected);
+            const result = getCardType(selected);
+
+            if (!result) return alert("牌型错误或禁止三带三！");
+            if (lastPlay.type && (result.type !== lastPlay.type || result.rank <= lastPlay.rank)) {
+                if(result.type !== 'BOMB') return alert("牌不够大！");
+            }
+
+            lastPlay = result;
+            renderTable(selected);
+            myHand = myHand.filter(c => !c.selected);
+            renderHand();
+            runAILoop();
+        }
+
+        function handlePass() {
+            document.getElementById('table-center').innerHTML = '<span style="color:#aaa">不出</span>';
+            runAILoop();
+        }
+
+        function renderTable(cards) {
             const center = document.getElementById('table-center');
             center.innerHTML = '';
             cards.forEach(c => {
@@ -123,22 +148,39 @@
             });
         }
 
-        function handlePlay() {
-            const selectedCards = myHand.filter(c => c.selected);
-            if(selectedCards.length === 0) return;
-            
-            showTableCards(selectedCards);
-            myHand = myHand.filter(c => !c.selected);
+        function renderHand() {
+            const container = document.getElementById('player-hand');
+            container.innerHTML = '';
+            myHand.forEach(card => {
+                const div = document.createElement('div');
+                div.className = 'card' + (card.selected ? ' selected' : '');
+                div.innerHTML = `<span class="rank">${getRankName(card.rank)}</span>`;
+                div.onclick = () => { card.selected = !card.selected; renderHand(); };
+                container.appendChild(div);
+            });
+        }
+
+        function getRankName(r) {
+            const n = {11:'J', 12:'Q', 13:'K', 14:'A', 15:'2', 16:'小', 17:'大'};
+            return n[r] || r;
+        }
+
+        function startOffline() {
+            isOnline = false;
+            document.getElementById('status-text').innerText = "单机模式：已发牌";
+            let deck = [];
+            for(let r=3; r<=17; r++) {
+                let count = (r<16)?8:2; // 两副牌逻辑
+                for(let c=0; c<count; c++) deck.push({rank: r});
+            }
+            deck.sort(() => Math.random() - 0.5);
+            myHand = deck.slice(0, 21).sort((a,b) => b.rank - a.rank);
             renderHand();
-            runAILoop();
         }
 
-        function handlePass() {
-            document.getElementById('table-center').innerHTML = '<span style="color:#aaa">你选择了不出</span>';
-            runAILoop();
-        }
+        function toggleMode() { alert("正在连接 Zeabur 联网大脑..."); }
 
-        startOfflineGame();
+        window.onload = startOffline;
         setInterval(() => { if(timeLeft > 0) { timeLeft--; document.getElementById('timer-box').innerText = timeLeft; } }, 1000);
     </script>
 </body>
